@@ -243,8 +243,9 @@
 			html = jQuery("<div>");
 			html.append(header);
 			var o;
-			for (var i=0; i<this.options.length; i++){
-				o = "<input type='"+this.type+"' name='"+this.name+"' value='"+ this.options[i]+"'>"+this.options[i] + "<br>";
+            var option_datas = this.options.enum;
+			for (var i=0; i<option_datas.length; i++){
+				o = "<input type='"+this.type+"' name='"+this.name+"' value='"+ option_datas[i]+"'>"+option_datas[i] + "<br>";
 				html.append(o);
 			}
 			this.html = html;
