@@ -163,12 +163,7 @@
 				var render_options = this.render_options["render-types"];
 				var render_type = (render_options && render_options[type]) || null;
 				var options;
-				if (_fragment.enum){
-					options = _fragment.enum;
-				}
-				else if (_fragment.type == "boolean"){
-					options = (_fragment.format && _fragment.format.split("/")) || ["True", "False"];
-				}
+                options = _fragment
 				return new Field(root, render_type || type , options);
 			}
 		}
@@ -219,8 +214,8 @@
 	var Field = function(name, type, options) {
 		this.name = name;
 		this.type = type;
-		if (options)
-			this.options = options;
+		this.options = options || {}
+        this.title = this.options.title;
 		this.setHTML();
 	};
 	
@@ -234,16 +229,17 @@
 			var o = new Option("Please Choose", "");
 			$(o).html("Please Choose");
 			html.append(o);
-			for (var i=0; i<this.options.length; i++){
-				o = new Option(this.options[i], this.options[i]);
-				$(o).html(this.options[i]);
+            var option_datas = this.options.enum;
+			for (var i=0; i<option_datas.length; i++){
+				o = new Option(option_datas[i], option_datas[i]);
+				$(o).html(option_datas[i]);
 				html.append(o);
 			}
 			html = jQuery("<div>").append(html);
 			html.prepend(header);
 			this.html = html;
 		} else if (this.type=="radio" || this.type=="checkbox"){
-			var header = jQuery("<h4>").html(this.name);
+			var header = jQuery("<h4>").html(this.title);
 			html = jQuery("<div>");
 			html.append(header);
 			var o;
@@ -254,7 +250,8 @@
 			this.html = html;
 		} 
 		else {
-			html = jQuery("<input>").attr("placeholder", this.name);
+			html = jQuery("<input>").attr("placeholder", this.title);
+            html.attr("name", this.name)
 			this.html = html;
 		}
 	}
