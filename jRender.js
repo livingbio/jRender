@@ -215,7 +215,7 @@
 		this.name = name;
 		this.type = type;
 		this.options = options || {}
-        this.title = this.options.title;
+        this.title = this.options.title || name;
 		this.setHTML();
 	};
 	
