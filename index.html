@@ -2,58 +2,37 @@
 <script src="jRender.js" type="text/javascript"></script>
 <script type="text/javascript">
 	
-	var personal_details_schema = {
-		type : "object",
-		title :"Personal Details",
-		properties : {
-			"First Name" : {
-				"type" : "string"
-			},
-			"Last Name" : {
-				"type" : "string"
-			},
-			"Address" : {
-				"type" : "array",
-				"items" : {
-					"$ref" : "#/definitions/address_object"
-				}
-			},
-			"Age" : {
-				"type" : "string"
-			},
-			"Interests" : {
-				"enum" : ["Sports", "Music", "Movies", "Food", "Fashion", "Technology", "Business"]
-			},
-			"Gender" : {
-				"type" : "boolean",
-				"format" : "Male/Female"
-			}
-		},
-		"definitions" : {
-			"address_object" : {
-				"properties" : {
-					"Door No." : {
-						"type" : "string"
-					},
-					"Street Name" : {
-						"type" : "string"
-					},
-					"City" : {
-						"type" : "string"
-					},
-					"Country" : {
-						"type" : "string"
-					},
-					"PIN" : {
-						"type" : "string"
-					}
-				}
-			}
-		}
-	};
+    var sample = {
+        "type": "object",   
+        "properties": {
+            "address": {
+                "type": "object",
+                "properties": {
+                    "city": {
+                        "type": "string"
+                    },
+                    "streetAddress": {
+                        "type": "string"
+                    }
+                }
+            },
+            "age":{
+                "type": "string"
+            }
+        }
+    }
+
+    var init_data = {
+        "address": {
+            "city": "taipei",
+            "streetAddress": "信義路4段415號"
+        }, 
+        "age": "20",
+    }
+    
 
 	$(document).ready(function() {
-		var json_to_render = personal_details_schema;
+		var json_to_render = sample;
 
 		options = {
 			"method" : "",
@@ -63,12 +42,11 @@
 			"render-options" : {
 				"render-types" : {
 					"enum" : "checkbox",
-					"boolean" : "radio"
 				}
 			}
 		};
 
-		jrender = jRender(json_to_render, options);
+		jrender = jRender(json_to_render, options, init_data);
 	})
 
 </script>
