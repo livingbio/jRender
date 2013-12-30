@@ -1,6 +1,9 @@
 (function(window) {
 
-	var jRender = function(json, options) {
+    var init_data = {};
+
+	var jRender = function(json, options, data) {
+        init_data = data;
 		return new jRender.fn.init(json, options);
 	};
 	
@@ -10,9 +13,42 @@
 	jRender.OBJECT = "object";
 	jRender.INPUT = "input";
 
+
+    
+    var name_encode = function(name){
+        return encodeURIComponent(name);
+    };
+
+    var name_decode = function(name){
+        return decodeURIComponent(name);
+    };
+
+    var reverse_name_scop = function(name){
+        var scops = name && name.split('&') || [];
+        var tmp = [];
+        for(var i=0; i<scops.length;i++) {
+            tmp.push(name_decode(scops[i]));
+        }
+        return tmp
+    }
+
+    var fetch_default = function(target, data){
+        target = reverse_name_scop(target);
+        tmp = data || {};
+        for(var i=0;i<target.length;i++){
+            var scop = target[i];
+            tmp = tmp[scop];
+            if(!tmp){
+                break;
+            }
+        }
+        return tmp;
+    }
+
+
 	jRender.fn = jRender.prototype = {
 		init : function(json, options) {
-
+            
 			if ( typeof (json) === "undefined")
 				json = {};
 
@@ -26,7 +62,11 @@
 			this.form_sections = {};
 			this.render_options = options["render-options"] || {};
 			
+            var tmp = {}
+            tmp[this.root] = init_data
+            init_data = tmp;
 			//if the root form is an array and no forms have been created;
+            this.root = name_encode(this.root);
 			var main_form = this.parse(this.root, this.schema);
 			if (!this.form_sections[this.root]){
 				this.form_sections[this.root] = new FormSection(this.root);
@@ -42,7 +82,9 @@
 		draw : function(root, hook){
 			var fields = this.form_sections[root].fields;
 			var form_section_div = this.form_sections[root].html;
-			var title = jQuery("<h4>").html(root);
+            root = root.split('&')
+            root.reverse()
+			var title = jQuery("<h4>").html(name_decode(root[0]));
 			form_section_div.append(title);
 			for (var i=0; i<fields.length; i++){
 				var field_div = jQuery("<div>");
@@ -121,8 +163,7 @@
 			}
 		},
 
-		parse : function(root, _fragment) {
-			
+		parse : function(root, _fragment, scop) {
 			var type = this.getFormType(_fragment);
 			var _is_ref = false;
 			
@@ -150,13 +191,13 @@
 					this.validate(type, _fragment);
 					this.form_sections[root] = new FormSection(root);
 					for (prop in _fragment.properties){
-						next_root = prop;
+						next_root = root+"&"+name_encode(prop);
 						this.form_sections[root].fields.push(this.parse(next_root, _fragment.properties[prop]));
 					}
 					_in_process[root] = false;
 					return this.form_sections[root];
 				} else {
-					return this._createButtonToHandleRef(root, _fragment, type);
+					return  this._createButtonToHandleRef(root, _fragment, type);
 				}
 				
 			} else {
@@ -164,10 +205,10 @@
 				var render_type = (render_options && render_options[type]) || null;
 				var options;
                 options = _fragment
-				return new Field(root, render_type || type , options);
+				return new Field(root, render_type || type , options );
 			}
 		}
-	};
+	}
 	
 	var DOMElement = function(){
 		
@@ -215,7 +256,10 @@
 		this.name = name;
 		this.type = type;
 		this.options = options || {}
-        this.title = this.options.title || name;
+        var tmp = name.split('&')
+        tmp.reverse()
+        this.title = this.options.title || name_decode(tmp[0]);
+        this.default = fetch_default(name, init_data) || this.options.default;
 		this.setHTML();
 	};
 	
@@ -231,8 +275,12 @@
 			html.append(o);
             var option_datas = this.options.enum;
 			for (var i=0; i<option_datas.length; i++){
-				o = new Option(option_datas[i], option_datas[i]);
-				$(o).html(option_datas[i]);
+                var value = option_datas[i]
+				o = new Option(value, value);
+                if(value == this.default){
+                    o.setAttribute('selected', 'selected');
+                };
+				$(o).html(value);
 				html.append(o);
 			}
 			html = jQuery("<div>").append(html);
@@ -245,7 +293,15 @@
 			var o;
             var option_datas = this.options.enum;
 			for (var i=0; i<option_datas.length; i++){
-				o = "<input type='"+this.type+"' name='"+this.name+"' value='"+ option_datas[i]+"'>"+option_datas[i] + "<br>";
+                var value = option_datas[i];
+				o = "<input type='"+this.type+"' name='"+this.name+"' value='"+ value;
+                if(jQuery.inArray(value, this.default) != -1){
+                    o+= " checked ";
+                }
+
+                o +="'>"+value + "<br>";
+
+
 				html.append(o);
 			}
 			this.html = html;
@@ -253,6 +309,7 @@
 		else {
 			html = jQuery("<input>").attr("placeholder", this.title);
             html.attr("name", this.name)
+            html.attr("value", this.default)
 			this.html = html;
 		}
 	}
