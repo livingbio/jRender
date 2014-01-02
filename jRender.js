@@ -306,7 +306,13 @@
 			}
 			this.html = html;
 		} 
-		else {
+		else if (this.type=="number"){
+			html = jQuery("<input type='number'>").attr("placeholder", this.title);
+            html.attr("name", this.name)
+            html.attr("value", this.default)
+			this.html = html;
+		}
+		else (this.type=="number"){
 			html = jQuery("<input>").attr("placeholder", this.title);
             html.attr("name", this.name)
             html.attr("value", this.default)
