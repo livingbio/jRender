@@ -266,7 +266,7 @@
 	Field.prototype = new DOMElement;
 	
 	Field.prototype.setHTML = function(){
-		var html;
+
 		if (this.type == "select") {
 			var header = jQuery("<h4>").html(this.name);
 			html = jQuery("<select>");
@@ -307,16 +307,16 @@
 			this.html = html;
 		} 
 		else if (this.type=="number"){
-			html = jQuery("<input type='number'>").attr("placeholder", this.title);
-            html.attr("name", this.name)
-            html.attr("value", this.default)
-			this.html = html;
+            var root = jQuery('<div>');
+
+            html = '<label>' + this.title+ ":</label>";
+            html += "<input type='number' name='"+this.name+"' "+ "placeholder='" + this.title +"' value='"+this.default+"'>"
+			this.html = $(html);
 		}
 		else {
-			html = jQuery("<input>").attr("placeholder", this.title);
-            html.attr("name", this.name)
-            html.attr("value", this.default)
-			this.html = html;
+            html = '<label>' + this.title+ ":</label>";
+            html += "<input name='"+this.name+"' "+ "placeholder='" + this.title +"' value='"+this.default+"'>"
+			this.html = $(html);
 		}
 	}
 	
